@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generate QR Code</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Center the content */
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #qrcode,
+    #imageContainer {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>QR Code</h2>
+
+  <div id="qrcode"></div>
+
+  <!-- Base64 to Image Conversion Section -->
+  <div id="imageContainer"></div>
+  <!-- End of Base64 to Image Conversion Section -->
+
+  <div>
+    <p>Scan the QR code to get the OTP.</p>
+  </div>
+
+  <button onclick="navigateToLoginPage()">Next</button>
+
+  <script>
+    const user = new URLSearchParams(window.location.search).get('user');
+    if (!user) {
+      console.error('Error: User parameter is missing from the URL');
+      // Handle the error, show a message to the user, or redirect to an error page
+    } else {
+      fetch('http://localhost:5500/generateQR?user=' + user, {
+        method: 'GET',
+      })
+        .then(response => response.json())
+        .then(data => {
+          const img = new Image();
+          img.src = data.image;
+          img.onload = function() {
+            const qrCodeContainer = document.getElementById('qrcode');
+            qrCodeContainer.appendChild(img);
+
+            const imageContainer = document.getElementById('imageContainer');
+            imageContainer.appendChild(img);
+          };
+          img.onerror = function() {
+            console.error("Error loading the image");
+          };
+        })
+        .catch(error => {
+          console.error('Error:', error.message);
+        });
+    }
+
+    function navigateToLoginPage() {
+      window.location.href = 'login.html';
+    }
+  </script>
+
+</body>
+</html>
